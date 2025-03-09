@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 
 from typing import AsyncGenerator
 
-from conf import url
+from config import url
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from datetime import datetime

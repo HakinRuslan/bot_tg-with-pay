@@ -1,7 +1,7 @@
 import asyncio
 from aiogram.types import ContentType
 from admin.kb import *
-from conf import *
+from config import *
 from datetime import datetime
 import re
 from aiogram.fsm.context import FSMContext

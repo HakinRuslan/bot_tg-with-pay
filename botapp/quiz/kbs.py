@@ -1,7 +1,7 @@
 from typing import List
 from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
-from conf import *
+from config import *
 
 def dasdads():
     pass

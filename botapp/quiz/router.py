@@ -5,7 +5,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 from aiogram.types import CallbackQuery, Message, LabeledPrice, PreCheckoutQuery
 from sqlalchemy.ext.asyncio import AsyncSession
-from conf import *
+from config import *
 import datetime
 from bot import bot
 from aiogram.filters import CommandStart

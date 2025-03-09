@@ -2,7 +2,7 @@ import asyncio
 from aiogram.types import BotCommand, BotCommandScopeDefault
 from loguru import logger
 from bot import bot, dp
-from conf import *
+from config import *
 from db.middleware.middleware import *
 from user.user_router import *
 from quiz.router import *
