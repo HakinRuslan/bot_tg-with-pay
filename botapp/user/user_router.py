@@ -32,18 +32,24 @@ async def cmd_start(message: Message, session_with_commit: AsyncSession):
 
     # await message.answer(f"🎉 <b>Приветствуем</b>. Теперь выберите необходимое действие.",
     #                      reply_markup=kb_return())
-    if user_info:
-        if user_info.active:
-            return await message.answer(
-                f"👋 Привет, {message.from_user.full_name}! Выберите необходимое действие",
-                reply_markup=main_user_kb(user_id)
-            )
-        else:
-            await message.answer(f"🎉 <b>Приветствуем</b>. Продлите ваш тариф, или купите новый.",
-                         reply_markup=kb_extend())
+    if message.from_user.id in ADMINS:
+        return await message.answer(
+                    f"👋 Привет, {message.from_user.full_name}! Выберите необходимое действие",
+                    reply_markup=main_user_kb(user_id)
+                )
     else:
-        await message.answer(f"🎉 <b>Приветствуем</b>. Теперь выберите необходимое действие.",
-                         reply_markup=kb_return())
+        if user_info:
+            if user_info.active:
+                return await message.answer(
+                    f"👋 Привет, {message.from_user.full_name}! Выберите необходимое действие",
+                    reply_markup=main_user_kb(user_id)
+                )
+            else:
+                await message.answer(f"🎉 <b>Приветствуем</b>. Продлите ваш тариф, или купите новый.",
+                            reply_markup=kb_extend())
+        else:
+            await message.answer(f"🎉 <b>Приветствуем</b>. Теперь выберите необходимое действие.",
+                            reply_markup=kb_return())
     # values = User(
     #     telegram_id=user_id,
     #     username=message.from_user.username
