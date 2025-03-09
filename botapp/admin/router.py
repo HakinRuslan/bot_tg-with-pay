@@ -154,7 +154,7 @@ async def admin_process_products(call: CallbackQuery, session_without_commit: As
     await call.answer('Режим управления')
     all_tariff_count = await TarrifDao.count(session=session_without_commit)
     await call.message.edit_text(
-        text=f"📂 На данный момент в базе данных {all_products_count} тарифов. что вы собираетесь сделать с ними?",
+        text=f"📂 На данный момент в базе данных {all_tariff_count} тарифов. что вы собираетесь сделать с ними?",
         reply_markup=product_management_kb()
     ) 
 
@@ -164,7 +164,7 @@ async def admin_process_cats(call: CallbackQuery, session_without_commit: AsyncS
     await call.answer('Режим управления')
     all_types_count = await TypeiftariffsDAO.count(session=session_without_commit)
     await call.message.edit_text(
-        text=f"📂 На данный момент в базе данных {all_cats_count} типов тариффов. что вы собираетесь сделать с ними?",
+        text=f"📂 На данный момент в базе данных {all_types_count} типов тариффов. что вы собираетесь сделать с ними?",
         reply_markup=category_management_kb()
     )
 
