@@ -97,16 +97,15 @@ from fastapi import FastAPI, Request, HTTPException, Depends
 from contextlib import asynccontextmanager
 import stripe
 from config import *
-from bot import bot, dp
-from quiz.kbs import *
+from aiogram import Bot
 from loguru import logging
 from db.models.models.manager import *
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
-from quiz.schemas import PaymentData
-from db.database.database import get_async_session
-from db.models.models.manager import *
+from schemas import PaymentData
+from db import get_async_session
+from models import *
 
 @asynccontextmanager
 async def lifespan():
@@ -117,6 +116,8 @@ async def lifespan():
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 stripe.api_key = STRIPE_SECRET_KEY
 
