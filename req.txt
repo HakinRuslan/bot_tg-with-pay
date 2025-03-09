@@ -31,7 +31,7 @@ pydantic
 alembic
 loguru
 pytz
-flask
+fastapi
 aiogram
 stripe
 python-dotenv
