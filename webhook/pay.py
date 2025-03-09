@@ -96,16 +96,16 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from contextlib import asynccontextmanager
 import stripe
-from botapp.config import *
-from botapp.bot import bot, dp
-from botapp.quiz.kbs import *
+from app.config import *
+from app.bot import bot, dp
+from app.quiz.kbs import *
 from loguru import logging
-from botapp.db.models.models.manager import *
+from app.db.models.models.manager import *
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
-from botapp.quiz.schemas import PaymentData
-from botapp.db.database.database import get_async_session
+from app.quiz.schemas import PaymentData
+from app.db.database.database import get_async_session
 
 @asynccontextmanager
 async def lifespan():

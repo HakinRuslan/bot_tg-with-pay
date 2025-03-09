@@ -102,7 +102,7 @@ async def surv_process(call: CallbackQuery, session_without_commit: AsyncSession
 
 
 @quiz_router.callback_query(lambda message: F.data.startswith('buy_'))
-async def process_payment(call: CallbackQuery, session_without_commit: Asyncsession):
+async def process_payment(call: CallbackQuery, session_without_commit: AsyncSession):
     user_info = await UserDAO.find_one_or_none(
     session=session_without_commit,
     filters=UserBaseInDB(telegram_id=call.from_user.id)
