@@ -136,16 +136,34 @@ async def success(session_id: str, request: Request, session: AsyncSession = Dep
         payment_intent_id = checkout_session.payment_intent
         customer_email = checkout_session.customer_details.email
         amount_total = checkout_session.amount_total / 100
+        username = checkout_session.metadata.get('username')
+        user_id = checkout_session.metadata.get('user_id')
+        tariff_id = checkout_session.metadata.get('tariff_id')
+        tarrif = checkout_session.metadata.get('tariff')
 
         payment_data = {
-            'user_id': checkout_session.metadata.get('user_id'),
+            'user_id': user_id,
             'payment_id': payment_intent_id,
             'price': amount_total,
-            "active": True,
-            'tariff_id': checkout_session.metadata.get('tariff_id')
+            'active': True,
+            'tariff_id': tariff_id
         }
         await PurchaseDao.add(session=session, values=PaymentData(**payment_data))
         await session.commit()
+
+        for admin_id in ADMINS:
+            try:
+                user_info = f"@{username} ({user_id})" if username else f"c ID {user_id}"
+
+                await bot.send_message(
+                    chat_id=admin_id,
+                    text=(
+                        f"💲 Пользователь c {user_info} купил тариф <b>{tarrif}</b> (ID: {tariff_id}) "
+                        f"за <b>{amount_total} $</b>."
+                    )
+                )
+            except Exception as e:
+                logger.error(f"Ошибка при отправке уведомления администраторам: {e}")
 
         return templates.TemplateResponse("success.html", {
             "request": request,

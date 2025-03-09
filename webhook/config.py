@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+adm = os.environ.get("ADMINS")
+ADMINS = [int(admin_id) for admin_id in adm.split(',')]
 TOKEN = os.environ.get("TOKEN")
 url = os.getenv('url')
 STRIPE_PUBLIC_KEY=os.getenv('STRIPE_PUBLIC_KEY')

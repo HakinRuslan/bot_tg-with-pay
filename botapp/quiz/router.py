@@ -138,7 +138,9 @@ async def process_payment(call: CallbackQuery, session_without_commit: AsyncSess
     metadata={
         'tg_chat_id': user_info.telegram_id,
         'user_id': user_info.id,
-        'product_id': product_id
+        'product_id': product_id,
+        'username': user_info.username,
+        'tariff': tariff.name
     },
         mode='payment',
         success_url=f'{SITE_URL}/success',
@@ -147,27 +149,27 @@ async def process_payment(call: CallbackQuery, session_without_commit: AsyncSess
     )
     await call.message.answer(f"✅Нажмите чтобы оплатить{price} USD: {checkout_session.url}")
 
-@quiz_router.callback_query(F.data.startswith('buy_'))
-async def process_about(call: CallbackQuery, state: FSMContext, session_without_commit: AsyncSession):
-    user_info = await UserDAO.find_one_or_none(
-        session=session_without_commit,
-        filters=UserBaseInDB(telegram_id=call.from_user.id)
-    )
-    _, product_id, price = call.data.split('_')
-    await bot.send_invoice(
-        chat_id=call.from_user.id,
-        title=f'Оплата 👉 {price}₽',
-        description=f'Пожалуйста, завершите оплату в размере {price}₽, чтобы открыть доступ к выбранному тарифу.',
-        payload=f"{user_info.id}_{product_id}",
-        provider_token=YTOKEN,
-        currency='rub',
-        prices=[LabeledPrice(
-            label=f'Оплата {price}',
-            amount=int(price) * 100
-        )],
-        reply_markup=get_product_buy_kb(price)
-    )
-    await call.message.delete()
+# @quiz_router.callback_query(F.data.startswith('buy_'))
+# async def process_about(call: CallbackQuery, state: FSMContext, session_without_commit: AsyncSession):
+#     user_info = await UserDAO.find_one_or_none(
+#         session=session_without_commit,
+#         filters=UserBaseInDB(telegram_id=call.from_user.id)
+#     )
+#     _, product_id, price = call.data.split('_')
+#     await bot.send_invoice(
+#         chat_id=call.from_user.id,
+#         title=f'Оплата 👉 {price}₽',
+#         description=f'Пожалуйста, завершите оплату в размере {price}₽, чтобы открыть доступ к выбранному тарифу.',
+#         payload=f"{user_info.id}_{product_id}",
+#         provider_token=YTOKEN,
+#         currency='rub',
+#         prices=[LabeledPrice(
+#             label=f'Оплата {price}',
+#             amount=int(price) * 100
+#         )],
+#         reply_markup=get_product_buy_kb(price)
+#     )
+#     await call.message.delete()
 
 @quiz_router.pre_checkout_query(lambda query: True)
 async def pre_checkout_query(pre_checkout_q: PreCheckoutQuery):
