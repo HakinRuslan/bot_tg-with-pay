@@ -82,21 +82,70 @@ async def surv_process(call: CallbackQuery, session_without_commit: AsyncSession
     if count_prods:
         print(products_by_cat[0].name)
         for i in products_by_cat:
+            typetariff = await TypeiftariffsDAO.find_one_or_none(session=session_without_commit, filters=TypeoftariffIDModel(type_of_tarrifs_id=i.type_tariff.id))
             product_text = (
                 f"📦 <b>Название тарифа:</b> {i.name}\n\n"
                 f"💰 <b>Цена:</b> {i.price} руб.\n\n"
-                f"📝 <b>Описание:</b>\n<i>{i.description}</i>\n\n"
-                f"📝 <b>Тип тарифа:</b>\n<i>{i.type_tariff}</i>\n\n"
+                f" <b>Описание:</b>\n<i>{i.description}</i>\n\n"
+                f"📝 <b>Тип тарифа:</b>\n<i>{i.type_tariff.type_tarif_name}</i>\n\n"
+                f" <b>На сколько:</b>\n<i>{typetariff.how_much_days} д.</i>\n\n"
                 f"━━━━━━━━━━━━━━━━━━"
             )
             await call.message.answer(
                 product_text,
-                reply_markup=tariffs_kb(i.id, i.price)
+                reply_markup=buy_kb(i.id, i.price)
             )
 
         await call.message.answer("Купите какой либо тариф, чтобы продолжить.")
     else:
         await call.answer("На данный моент нету тарифов.")
+
+
+@quiz_router.callback_query(lambda message: F.data.startswith('buy_'))
+async def process_payment(call: CallbackQuery, session_without_commit: Asyncsession):
+    user_info = await UserDAO.find_one_or_none(
+    session=session_without_commit,
+    filters=UserBaseInDB(telegram_id=call.from_user.id)
+    )
+    _, product_id, price = call.data.split('_')
+    tarifа = await TarrifDao.find_one_or_none_by_id(session=session_without_commit, data_id=product_id)
+    # await bot.send_invoice(
+    #     chat_id=call.from_user.id,
+    #     title=f'Оплата 👉 {price}₽',
+    #     description=f'Пожалуйста, завершите оплату в размере {price}₽, чтобы открыть доступ к выбранному тарифу.',
+    #     payload=f"{user_info.id}_{product_id}",
+    #     provider_token=YTOKEN,
+    #     currency='rub',
+    #     prices=[LabeledPrice(
+    #         label=f'Оплата {price}',
+    #         amount=int(price) * 100
+    #     )],
+    #     reply_markup=get_product_buy_kb(price)
+    # )
+    checkout_session = stripe.checkout.Session.create(
+    payment_method_types=['card'],
+    line_items=[{
+        'price_data': {
+            'currency': 'usd',
+            'product_data': {
+                'name': f'{tariff.name}',
+                'description': f'Пожалуйста, завершите оплату в размере {price}$, чтобы открыть доступ к выбранному тарифу.',
+            },
+            'unit_amount': int(price) * 100
+        },
+        'quantity': 1,
+    }],
+    metadata={
+        'tg_chat_id': user_info.telegram_id,
+        'user_id': user_info.id,
+        'product_id': product_id
+    },
+        mode='payment',
+        success_url=f'{SITE_URL}/success',
+        cancel_url=f'{SITE_URL}/cancel',
+        client_reference_id=user_info.id
+    )
+    await call.message.answer(f"✅Нажмите чтобы оплатить{price} USD: {checkout_session.url}")
 
 @quiz_router.callback_query(F.data.startswith('buy_'))
 async def process_about(call: CallbackQuery, state: FSMContext, session_without_commit: AsyncSession):
@@ -134,11 +183,9 @@ async def surv_successful_payment(message: Message, session_with_commit: AsyncSe
         'price': payment_info.total_amount / 100,
         'product_id': int(product_id)
     }
-    # Добавляем информацию о покупке в базу данных
     await PurchaseDao.add(session=session_with_commit, values=PaymentData(**payment_data))
     product_data = await ProductDao.find_one_or_none_by_id(session=session_with_commit, data_id=int(product_id))
 
-    # Формируем уведомление администраторам
     for admin_id in ADMINS:
         try:
             username = message.from_user.username
@@ -154,7 +201,6 @@ async def surv_successful_payment(message: Message, session_with_commit: AsyncSe
         except Exception as e:
             logger.error(f"Ошибка при отправке уведомления администраторам: {e}")
 
-    # Подготавливаем текст для пользователя
     file_text = "📦 <b>Товар включает файл:</b>" if product_data.file_id else "📄 <b>Товар не включает файлы:</b>"
     product_text = (
         f"🎉 <b>Спасибо за покупку тарифа!</b>\n\n"
@@ -167,8 +213,6 @@ async def surv_successful_payment(message: Message, session_with_commit: AsyncSe
         f"{file_text}\n\n"
         f"ℹ️ <b>Информацию о купленных тарифах вы можете найти в личном профиле.</b>"
     )
-
-    # Отправляем информацию о товаре пользователю
     await message.answer(
         text=product_text,
         reply_markup=main_user_kb(message.from_user.id)

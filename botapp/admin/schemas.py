@@ -23,6 +23,7 @@ class User_upd_active(BaseModel):
 
 class CategoryModel(BaseModel):
     type_tarif_name: str = Field(..., min_length=5)
+    how_much_days: int
 
 class ProductModel(BaseModel):
     name: str = Field(..., min_length=5)

@@ -6,6 +6,13 @@ from conf import *
 def dasdads():
     pass
 
+def buy_kb(product_id, price) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text="💸 Купить", callback_data=f"buy_{product_id}_{price}")
+    kb.adjust(2)
+    return kb.as_markup()
+
+
 def kb_extend() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text="Продлить", callback_data="extend")
@@ -30,7 +37,6 @@ def kb_tarrif() -> InlineKeyboardMarkup:
 def main_user_kb(user_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text="👤 Мои профиль", callback_data="my_profile")
-    # kb.button(text="ℹ️ О нас", callback_data="about")
     if user_id in ADMINS:
         kb.button(text="⚙️ Админ панель", callback_data="admin_panel")
     kb.adjust(1)

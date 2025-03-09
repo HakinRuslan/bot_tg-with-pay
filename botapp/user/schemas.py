@@ -25,10 +25,22 @@ class TariffIDModel(BaseModel):
 class TypeoftariffIDModel(BaseModel):
     type_of_tarrifs_id: int
 
+class Payment_user_id(BaseModel):
+    user_id: int = Field(..., description="ID пользователя Telegram")
+
 
 class PaymentData(BaseModel):
     user_id: int = Field(..., description="ID пользователя Telegram")
     payment_id: str = Field(..., max_length=255, description="Уникальный ID платежа")
+    active: bool
     price: int = Field(..., description="Сумма платежа в рублях")
-    product_id: int = Field(..., description="ID товара")
+    tariff_id: int = Field(..., description="ID товара")
+
+
+
+class ProductModel(BaseModel):
+    name: str = Field(..., min_length=5)
+    description: str = Field(..., min_length=5)
+    price: int = Field(..., gt=0)
+    type_of_tarrifs_id: int = Field(..., gt=0)
  

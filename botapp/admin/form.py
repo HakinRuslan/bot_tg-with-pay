@@ -7,6 +7,7 @@ class Pagination(CallbackData, prefix="pag"):
 
 class Addtypeoftariff(StatesGroup):
     type_tarif_name = State()
+    how_much_days = State()
     confirm_add = State()
 
 class Addtariff(StatesGroup):

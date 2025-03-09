@@ -3,16 +3,8 @@ EXPOSE 8000
 ENV HOME=/opt/app
 WORKDIR /opt/app
 
-# COPY webhook/requirements.txt /tmp/requirements.txt
-# COPY webhook .
-
-COPY bot/requirements.txt /tmp/requirements.txt
-COPY bot .
-
-# COPY alembic ./alembic
-# COPY alembic.ini .
-# COPY config.py ./alembic
-#COPY src/config.py .
+COPY .req.txt /tmp/requirements.txt
+COPY botapp .
 
 RUN pip install virtualenv  &&\
     python -m virtualenv /opt/venv &&\
@@ -26,5 +18,5 @@ RUN . /opt/venv/bin/activate &&\
     cd /opt/app/ && ls -li
 
 
-CMD . /opt/venv/bin/activate && cd /opt/app/ &&python bot.py
+CMD . /opt/venv/bin/activate && cd /opt/app/ &&python bot_run.py
 #&& uvicorn main:app --host 0.0.0.0

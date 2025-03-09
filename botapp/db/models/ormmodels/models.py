@@ -7,11 +7,10 @@ import datetime
 class Tariff(Base):
     __tablename__ = 'tariffs'
 
-
     name: Mapped[str] = mapped_column(Text)
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[int]
-    file_id: Mapped[str | None] = mapped_column(Text)
+    data: Mapped[datetime.date | None] = mapped_column(Date, nullable=True)
     type_of_tarrifs_id: Mapped[int] = mapped_column(ForeignKey('typoftariffs.id'))
     type_tariff: Mapped["Typoftariffs"] = relationship("Typoftariffs", back_populates="tariffs")
     purchases: Mapped[List['Purchase']] = relationship(
@@ -37,7 +36,7 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
-    def __repr__(self):
+    def __repr__(self): 
         return f"<User(id={self.id}, telegram_id={self.telegram_id}, username='{self.username}')>"
     
 class Purchase(Base):
@@ -46,6 +45,7 @@ class Purchase(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     tariff_id: Mapped[int] = mapped_column(ForeignKey('tariffs.id'))
     price: Mapped[int]
+    expires: Mapped[datetime.date | None] = mapped_column(Date, nullable=True)
     active: Mapped[bool]
     payment_id: Mapped[str] = mapped_column(unique=True)
     user: Mapped["User"] = relationship("User", back_populates="purchases")
@@ -60,6 +60,7 @@ class Typoftariffs(Base):
     __tablename__ = 'typoftariffs'
 
     type_tarif_name: Mapped[str] = mapped_column(Text, nullable=False)
+    how_much_days: Mapped[int]
     tariffs: Mapped[List["Tariff"]] = relationship(
         "Tariff",
         back_populates="type_tariff",

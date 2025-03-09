@@ -11,6 +11,14 @@ from bot import bot
 import time
 import os
 from aiogram.enums import ContentType, ChatMemberStatus
+from datetime import datetime, timedelta
+
+def how_much(days: int) -> str:
+    if not isinstance(days, int) or days <= 0:
+        raise ValueError("Количество дней должно быть положительным целым числом")
+    
+    end_date = datetime.now() + timedelta(days=days)
+    return end_date.strftime('%d/%m/%y')
 
 
 def generate_fake_telegram_id():

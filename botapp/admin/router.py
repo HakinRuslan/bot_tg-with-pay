@@ -195,27 +195,40 @@ async def admin_process_add_type_tariff(call: CallbackQuery, state: FSMContext):
     await state.update_data(last_msg_id=msg.message_id)
     await state.set_state(Addtypeoftariff.type_tarif_name)
 
-
-@admin_router.message(F.text, F.from_user.id.in_(ADMINS), Addtypeoftariff.type_tarif_name)
-async def admin_process_name(message: Message, state: FSMContext):
+@admin_router.callback_query(F.text, F.from_user.id.in_(ADMINS), Addtypeoftariff.type_tarif_name)
+async def admin_process_add_how_much_days(call: CallbackQuery, state: FSMContext):
     await state.update_data(type_tarif_name=message.text)
-    cat_data = await state.get_data()
-    print(cat_data)
-    cat_text = (
-        f'Проверьте, все ли корректно:\n\n'
-        f'<b>Тип тарифа:</b> <b>{cat_data["category_name"]}</b>\n'
-        )
-    await process_dell_text_msg(message, state)
-    msg = await message.answer(text=cat_text, reply_markup=admin_confirm_kb())
+    await call.message.delete()
+    msg = await call.message.answer(text="Укажите в днях(только числом), то сколько будут актуальны тарифы, для этого типа тарифов: ", reply_markup=cancel_kb_inline())
     await state.update_data(last_msg_id=msg.message_id)
-    await state.set_state(Addtypeoftariff.confirm_add)
+    await state.set_state(Addtypeoftariff.how_much_days)
+
+
+@admin_router.message(F.text, F.from_user.id.in_(ADMINS), Addtypeoftariff.how_much_days)
+async def admin_process_name(message: Message, state: FSMContext):
+    try:
+        days = int(message.text)
+        await state.update_data(how_much_ago=days)
+        cat_data = await state.get_data()
+        cat_text = (
+            f'Проверьте, все ли корректно:\n\n'
+            f'<b>Тип тарифа:</b> <b>{cat_data["category_name"]}</b>\n'
+            f'Заданный промежуток в днях, насколько будет актуальны тарифы для этого типа - {days} д.'
+            )
+        await process_dell_text_msg(message, state)
+        msg = await message.answer(text=cat_text, reply_markup=admin_confirm_kb())
+        await state.update_data(last_msg_id=msg.message_id)
+        await state.set_state(Addtypeoftariff.confirm_add)
+    except ValueError:
+        await message.answer(text="Ошибка! Необходимо ввести числовое значение для цены.")
+        return
 
 @admin_router.callback_query(F.data == "confirm_add", F.from_user.id.in_(ADMINS), Addtypeoftariff.confirm_add)
 async def admin_process_confirm_add(call: CallbackQuery, state: FSMContext, session_with_commit: AsyncSession):
     type_tariff_data = await state.get_data()
     await bot.delete_message(chat_id=call.from_user.id, message_id=type_tariff_data["last_msg_id"])
     del type_tariff_data["last_msg_id"]
-    await CategoryDao.add(session=session_with_commit, values=CategoryModel(**type_tariff_data))
+    await TypeiftariffsDAO.add(session=session_with_commit, values=CategoryModel(**type_tariff_data))
     await call.message.answer(text="🆗 Тип тарифа успешно добавлен в базу данных!", reply_markup=admin_kb())
 
 
@@ -254,7 +267,7 @@ async def admin_process_type_tariff(call: CallbackQuery, state: FSMContext):
     type_of_tarrifs_id = int(call.data.split("_")[-1])
     await state.update_data(type_of_tarrifs_id=type_of_tarrifs_id)
     await call.answer('Тип тарифа успешно выбран.')
-    msg = await call.message.edit_text(text="Введите цену тарифа например: (1000 = 10.00 USD): ", reply_markup=cancel_kb_inline())
+    msg = await call.message.edit_text(text="Введите цену тарифа в долларах, например: 10", reply_markup=cancel_kb_inline())
     await state.update_data(last_msg_id=msg.message_id)
     await state.set_state(Addtariff.price)
 
@@ -271,6 +284,7 @@ async def admin_before_add(message: Message, state: FSMContext, session_without_
         tariff_add_text = (f'🛒 Проверьте, все ли корректно:\n\n'
                         f'🔹 <b>Название товара:</b> <b>{tariff_data["name"]}</b>\n'
                         f'🔹 <b>Описание:</b>\n\n<b>{tariff_data["description"]}</b>\n\n'
+                        f'🔹 <b>Cрок тарифа:</b>\n\n<b>{type_of_tariff_info.how_much_days}</b>\n\n'
                         f'🔹 <b>Цена:</b> <b>{ttariff_data["price"]} ₽</b>\n'
                         f'🔹 <b>Тип тарифа:</b> <b>{type_of_tariff_info.type_tarif_name} (ID: {type_of_tariff_info.id})</b>\n\n'
         )
