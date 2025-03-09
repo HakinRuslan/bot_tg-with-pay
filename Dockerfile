@@ -3,7 +3,7 @@ EXPOSE 8000
 ENV HOME=/opt/app
 WORKDIR /opt/app
 
-COPY .req.txt /tmp/requirements.txt
+COPY req.txt /tmp/requirements.txt
 COPY botapp .
 
 RUN pip install virtualenv  &&\
