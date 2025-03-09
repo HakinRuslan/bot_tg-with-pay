@@ -5,6 +5,7 @@ WORKDIR /opt/app
 
 COPY req.txt /tmp/requirements.txt
 COPY botapp .
+COPY conf.py .
 
 RUN pip install virtualenv  &&\
     python -m virtualenv /opt/venv &&\

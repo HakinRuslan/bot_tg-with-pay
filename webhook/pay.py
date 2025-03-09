@@ -119,7 +119,7 @@ app = FastAPI(lifespan=lifespan)
 
 stripe.api_key = STRIPE_SECRET_KEY
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="temps")
 
 # async def send_telegram_message(user_id, text):
 #     await bot.send_message(user_id, text)
