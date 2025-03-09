@@ -98,7 +98,7 @@ from contextlib import asynccontextmanager
 import stripe
 from config import *
 from aiogram import Bot
-from loguru import logging
+from loguru import logger
 from db.models.models.manager import *
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
