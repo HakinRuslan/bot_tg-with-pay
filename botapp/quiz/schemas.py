@@ -21,8 +21,6 @@ class Usersch(UserBaseInDB):
     data_birth: date
 
 
-
-
 class TariffIDModel(BaseModel):
     id: int
 

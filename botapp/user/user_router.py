@@ -7,6 +7,7 @@ from .kb import *
 from .schemas import *
 from admin.kb import *
 from quiz.kbs import *
+from utils.utils import *
 from db.models.models.manager import *
 
 user_router = Router()
@@ -69,9 +70,9 @@ async def page_home(call: CallbackQuery):
 @user_router.callback_query(F.data == "my_profile")
 async def page_about(call: CallbackQuery, session_without_commit: AsyncSession):
     await call.answer("Профиль")
-
+    user_info = await UserDAO.find_one_or_none(session=session_without_commit, filters=UserBaseInDB(telegram_id=call.from_user.id))
     # Получаем статистику покупок пользователя
-    purchases = await PurchaseDao.find_one_or_none(session=session_without_commit, filters=UserBaseInDB(telegram_id=call.from_user.id))
+    purchases = await UserDAO.get_purchased_products(session=session_without_commit, user_id=user_info.id)
     # total_amount = purchases.get("total_amount", 0)
     # total_purchases = purchases.get("total_purchases", 0)
 
@@ -94,9 +95,9 @@ async def page_about(call: CallbackQuery, session_without_commit: AsyncSession):
 @user_router.callback_query(F.data == "purchases")
 async def page_user_purchases(call: CallbackQuery, session_without_commit: AsyncSession):
     await call.answer("Мой тариф")
-
+    user_info = await UserDAO.find_one_or_none(session=session_without_commit, filters=UserBaseInDB(telegram_id=call.from_user.id))
     # Получаем список покупок пользователя
-    purchases = await UserDAO.get_purchased_products(session=session_without_commit, telegram_id=call.from_user.id)
+    purchases = await PurchaseDao.find_one_or_none(session=session_without_commit, filters=Purchactive(user_id=user_info.id, active=True))
 
     if not purchases:
         await call.message.edit_text(
@@ -106,21 +107,20 @@ async def page_user_purchases(call: CallbackQuery, session_without_commit: Async
         )
         return
 
-    # Для каждой покупки отправляем информацию
-    for purchase in purchases:
-        product = purchase.product
+    tariff = purchase.tariff
 
-        product_text = (
-            f"🛒 <b>Информация о вашем Тарифе:</b>\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"🔹 <b>Название:</b> <i>{product.name}</i>\n"
-            f"🔹 <b>Описание:</b>\n<i>{product.description}</i>\n"
-            f"🔹 <b>Цена:</b> <b>{product.price} ₽</b>\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-        )
-        await call.message.answer(
-            text=product_text,
-        )
+    tariff_text = (
+        f"🛒 <b>Информация о вашем Тарифе:</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🔹 <b>Название:</b> <i>{tariff.name}</i>\n"
+        f"🔹 <b>Описание:</b>\n<i>{tariff.description}</i>\n"
+        f"🔹 <b>Оканчивается:</b>\n<i>{how_much(purchase.expires)}</i>\n"
+        f"🔹 <b>Цена:</b> <b>{tariff.price} ₽</b>\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+    )
+    await call.message.answer(
+            text=tariff_text,
+    )
 
     await call.message.answer(
         text="🙏 Спасибо за доверие!",

@@ -17,6 +17,10 @@ class UserPurch(BaseModel):
 class User(UserBaseInDB):
     username: str
 
+class Purchactive(BaseModel):
+    user_id: int
+    active: bool
+
 
 class TariffIDModel(BaseModel):
     id: int

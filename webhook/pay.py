@@ -140,11 +140,13 @@ async def success(session_id: str, request: Request, session: AsyncSession = Dep
         user_id = checkout_session.metadata.get('user_id')
         tariff_id = checkout_session.metadata.get('tariff_id')
         tarrif = checkout_session.metadata.get('tariff')
+        expires = checkout_session.metadata.get('expires')
 
         payment_data = {
             'user_id': user_id,
             'payment_id': payment_intent_id,
             'price': amount_total,
+            'expires': datetime.strptime(expires, '%d/%m/%y'),
             'active': True,
             'tariff_id': tariff_id
         }
@@ -200,7 +202,7 @@ async def webhook(request: Request):
         chat_id = payment_intent['metadata'].get('tg_chat_id')
         logging.info(f"Оплата прошла user_id: {chat_id}")
         if chat_id:
-            await bot.send_message(chat_id, "Оплата прошла успешно! Спасибо за покупку.")
+            await bot.send_message(chat_id, "Оплата прошла успешно! Мы пришлем вам уведомление о том что срок вашего тарифа закончился. Спасибо за покупку.")
 
     return {"success": True}
 

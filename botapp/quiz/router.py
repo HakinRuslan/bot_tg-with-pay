@@ -109,7 +109,7 @@ async def process_payment(call: CallbackQuery, session_without_commit: AsyncSess
     )
     print(call.data.split('_'))
     _, product_id, price = call.data.split('_')
-    tarifа = await TarrifDao.find_one_or_none_by_id(session=session_without_commit, data_id=product_id)
+    tariff = await TarrifDao.find_one_or_none_by_id(session=session_without_commit, data_id=product_id)
     # await bot.send_invoice(
     #     chat_id=call.from_user.id,
     #     title=f'Оплата 👉 {price}₽',
@@ -130,7 +130,7 @@ async def process_payment(call: CallbackQuery, session_without_commit: AsyncSess
             'currency': 'usd',
             'product_data': {
                 'name': f'{tariff.name}',
-                'description': f'Пожалуйста, завершите оплату в размере {price}$, чтобы открыть доступ к выбранному тарифу.',
+                'description': f'Пожалуйста, завершите оплату в размере {price}$, чтобы открыть доступ к выбранному тарифу, он окончится в {how_much(tariff.type_tariff.how_much_days)}',
             },
             'unit_amount': int(price) * 100
         },
@@ -141,7 +141,8 @@ async def process_payment(call: CallbackQuery, session_without_commit: AsyncSess
         'user_id': user_info.id,
         'product_id': product_id,
         'username': user_info.username,
-        'tariff': tariff.name
+        'tariff': tariff.name,
+        'expires': how_much(tariff.type_tariff.how_much_days)
     },
         mode='payment',
         success_url=f'{SITE_URL}/success',

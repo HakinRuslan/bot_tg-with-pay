@@ -15,27 +15,6 @@ from .form import *
 
 admin_router = Router()
 
-@admin_router.callback_query(F.data == 'statistic', F.from_user.id.in_(ADMINS))
-async def admin_statistic(call: CallbackQuery, session_without_commit: AsyncSession):
-    await call.answer('Запрос на получение статистики...')
-    await call.answer('📊 Собираем статистику...')
-
-    stats = await UserDAO.get_statistics(session=session_without_commit)
-    total_summ = await PurchaseDao.get_full_summ(session=session_without_commit)
-    stats_message = (
-        "📈 Статистика пользователей:\n\n"
-        f"👥 Всего пользователей: {stats['total_users']}\n"
-        f"🆕 Новых за сегодня: {stats['new_today']}\n"
-        f"📅 Новых за неделю: {stats['new_week']}\n"
-        f"📆 Новых за месяц: {stats['new_month']}\n\n"
-        f"💰 Общая сумма заказов: {total_summ} руб.\n\n"
-        "🕒 Данные актуальны на текущий момент."
-    )
-    await call.message.edit_text(
-        text=stats_message,
-        reply_markup=admin_kb()
-    )
-
 @admin_router.callback_query(F.data == "admin_panel", F.from_user.id.in_(ADMINS))
 async def start_admin(call: CallbackQuery):
     await call.answer('Доступ в админ-панель разрешен!')
@@ -65,13 +44,6 @@ async def admin_statistic(call: CallbackQuery, session_without_commit: AsyncSess
         reply_markup=stat_kb()
     )
 
-@admin_router.callback_query(F.data == "admin_panel", F.from_user.id.in_(ADMINS))
-async def start_admin(call: CallbackQuery):
-    await call.answer('Доступ в админ-панель разрешен!')
-    await call.message.edit_text(
-        text="Вам разрешен доступ в админ-панель. Выберите необходимое действие.",
-        reply_markup=admin_kb()
-    )
 
 @admin_router.callback_query(F.data == "users", F.from_user.id.in_(ADMINS))
 async def start_admin(call: CallbackQuery, session_without_commit: AsyncSession):
@@ -284,7 +256,7 @@ async def admin_before_add(message: Message, state: FSMContext, session_without_
         tariff_add_text = (f'🛒 Проверьте, все ли корректно:\n\n'
                         f'🔹 <b>Название товара:</b> <b>{tariff_data["name"]}</b>\n'
                         f'🔹 <b>Описание:</b>\n\n<b>{tariff_data["description"]}</b>\n\n'
-                        f'🔹 <b>Cрок тарифа:</b>\n\n<b>{type_of_tariff_info.how_much_days}</b>\n\n'
+                        f'🔹 <b>Cрок тарифа:</b>\n\n<b>{type_of_tariff_info.how_much_days} д.</b>\n\n'
                         f'🔹 <b>Цена:</b> <b>{ttariff_data["price"]} ₽</b>\n'
                         f'🔹 <b>Тип тарифа:</b> <b>{type_of_tariff_info.type_tarif_name} (ID: {type_of_tariff_info.id})</b>\n\n'
         )
