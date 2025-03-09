@@ -101,12 +101,13 @@ async def surv_process(call: CallbackQuery, session_without_commit: AsyncSession
         await call.answer("На данный моент нету тарифов.")
 
 
-@quiz_router.callback_query(lambda message: F.data.startswith('buy_'))
+@quiz_router.callback_query(F.data.startswith('buy_'))
 async def process_payment(call: CallbackQuery, session_without_commit: AsyncSession):
     user_info = await UserDAO.find_one_or_none(
     session=session_without_commit,
     filters=UserBaseInDB(telegram_id=call.from_user.id)
     )
+    print(call.data.split('_'))
     _, product_id, price = call.data.split('_')
     tarifа = await TarrifDao.find_one_or_none_by_id(session=session_without_commit, data_id=product_id)
     # await bot.send_invoice(
