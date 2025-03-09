@@ -96,7 +96,7 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from contextlib import asynccontextmanager
 import stripe
-from config import *
+from botapp.conf import *
 from botapp.bot import bot, dp
 from botapp.quiz.kbs import *
 from loguru import logging

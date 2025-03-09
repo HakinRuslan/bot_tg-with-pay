@@ -7,7 +7,6 @@ WORKDIR /opt/app
 # COPY bot .
 COPY req.txt /tmp/requirements.txt
 COPY webhook .
-COPY conf.py .
 
 
 # COPY alembic ./alembic
