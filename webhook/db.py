@@ -1,11 +1,9 @@
 
 
 from sqlalchemy import MetaData
-
 from contextlib import asynccontextmanager
-
 from typing import AsyncGenerator
-
+from datetime import datetime
 from config import url
 from sqlalchemy import func, TIMESTAMP, Integer
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
