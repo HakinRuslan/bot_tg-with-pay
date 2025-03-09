@@ -1,4 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase
+
 
 from sqlalchemy import MetaData
 
@@ -7,6 +7,9 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from config import url
+from sqlalchemy import func, TIMESTAMP, Integer
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+from sqlalchemy import BigInteger, Text, ForeignKey, Date
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
