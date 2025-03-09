@@ -5,7 +5,7 @@ WORKDIR /opt/app
 
 # COPY bot/requirements.txt /tmp/requirements.txt
 # COPY bot .
-COPY .req.txt /tmp/requirements.txt
+COPY req.txt /tmp/requirements.txt
 COPY webhook .
 
 
